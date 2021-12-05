@@ -1,5 +1,3 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QTextCharFormat, QFont
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from syntax_highlighters.TerminalHighlighters import TerminalTextHighlighter
@@ -139,6 +137,7 @@ class TerminalManager:
         self.terminal_window = QPlainTextEdit()
         self.terminal_window.setWindowTitle("Terminal output")
         self.terminal_window.setReadOnly(True)
+
         self.highlighter = TerminalTextHighlighter(self.terminal_window.document())
 
         self.exit_code_widget = QLabel("Exit code: ")
