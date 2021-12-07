@@ -1,11 +1,15 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextCharFormat, QFont
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
+from syntax_highlighters.TerminalHighlighters import TerminalTextHighlighter
 
 
 class RefStr:
     """
         A class to hold a string as a reference.
     """
+
     def __init__(self, s):
         self.str = [s]
 
@@ -60,6 +64,7 @@ class TextEditor:
     """
         The main code editor.
     """
+
     def __init__(self):
         self.widget = QPlainTextEdit()
         self.widget.setWindowTitle("Text editor")
@@ -134,9 +139,12 @@ class TerminalManager:
         self.terminal_window = QPlainTextEdit()
         self.terminal_window.setWindowTitle("Terminal output")
         self.terminal_window.setReadOnly(True)
+        self.highlighter = TerminalTextHighlighter(self.terminal_window.document())
+
         self.exit_code_widget = QLabel("Exit code: ")
 
-        self.run_script_tool = self.RunScriptTool(self.terminal_window, self.exit_code_widget, file_path)
+        self.run_script_tool = self.RunScriptTool(self.terminal_window, self.highlighter, self.exit_code_widget,
+                                                  file_path)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.run_script_tool.widget)
@@ -146,9 +154,10 @@ class TerminalManager:
         self.widget.setLayout(self.layout)
 
     class RunScriptTool:
-        def __init__(self, terminal_editor, exit_code_widget, file_path):
+        def __init__(self, terminal_editor, highlighter, exit_code_widget, file_path):
             self.file_path = file_path
             self.output = terminal_editor
+            self.highlighter = highlighter
 
             # Create a button that will run the script.
             self.widget = QPushButton("Run script")
@@ -179,28 +188,27 @@ class TerminalManager:
         def call_program(self):
             self.process.start('/usr/bin/env swift ' + str(self.file_path))
 
-        def read_output(self):
+        def insert_text_with_format(self, text, state=None):
+            if state is None:
+                state = self.highlighter.DEFAULT_STATE
+
+            # Move the cursor to the end of the current text.
             cursor = self.output.textCursor()
             cursor.movePosition(cursor.End)
-            cursor.insertText(self.process.readAllStandardOutput().data().decode('utf-8'))
+
+            # Insert the text and apply the format.
+            self.highlighter.set_state(state)
+            cursor.insertText(text)
+            self.highlighter.set_state(self.highlighter.DEFAULT_STATE)
+
             self.output.ensureCursorVisible()
+
+        def read_output(self):
+            self.insert_text_with_format(self.process.readAllStandardOutput().data().decode('utf-8'))
 
         def read_error(self):
-            cursor = self.output.textCursor()
-            cursor.movePosition(cursor.End)
-
-            # TODO - this is not working. This sets text color to red, but doesnt restore the default color.
-            #color = QTextCharFormat()
-            # # Set QTextFormat to red color.
-            # color.setForeground(Qt.red)
-            # cursor.setCharFormat(color)
-            cursor.insertText(self.process.readAllStandardError().data().decode('utf-8'))
-            self.output.ensureCursorVisible()
-
-            # Restore default black color.
-            # color.setForeground(Qt.black)
-            # cursor.setCharFormat(color)
-            # self.output.ensureCursorVisible()
+            self.insert_text_with_format(self.process.readAllStandardError().data().decode('utf-8'),
+                                         self.highlighter.ERROR_STATE)
 
         def handle_state_change(self):
             states = {
@@ -213,11 +221,18 @@ class TerminalManager:
             print(states[self.process.state()])
 
         def started(self):
+            self.insert_text_with_format("Running... \n\n", self.highlighter.BEGIN_OR_END_STATE)
+
             self.widget.setEnabled(False)
 
         def finished(self):
-            self.exit_code_widget.setText("Exit code: " + str(self.get_exit_code()))
+            text = f"\nExit code: {str(self.get_exit_code())}\n\n"
+
+            self.insert_text_with_format(text, self.highlighter.BEGIN_OR_END_STATE)
+            self.exit_code_widget.setText(text)
+
             self.widget.setEnabled(True)
+
 
 if __name__ == "__main__":
     SwiftyApp()
