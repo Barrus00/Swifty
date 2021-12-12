@@ -115,13 +115,13 @@ class FileManager:
             alert.exec()
 
     def save_as(self):
-        path = QFileDialog.getSaveFileName(self.parent, 'Save')[0]
+        path = QFileDialog.getSaveFileName(self.parent, 'Save As')[0]
         if path:
             self.file_path = path
             self.save()
 
     def save(self):
-        if self.file_path is None:
+        if not self.file_path:
             # If no file is selected, ask user to create/select a new one, to save the content into.
             self.save_as()
         else:
