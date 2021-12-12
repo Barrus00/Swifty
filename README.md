@@ -21,3 +21,6 @@ It's written in Python, and uses the PyQt5 framework for GUI.
 2. (Optionally) Create and activate the python virtual environment. 
 3. Install the requirements. (`pip install -r requirements.txt`)
 4. Run the app. (`python3 swifty.py`)
+
+## Remarks:
+* Script is run directly from a file, so remember to save the changes before running.
