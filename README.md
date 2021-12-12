@@ -16,7 +16,8 @@ It's written in Python, and uses the PyQt5 framework for GUI.
 * Simple syntax highlighting.
 * Currently running status is indicated by the disabled run button.
 
-## How to use?
+## How to use? (python3)
 1. Download the repo.
-2. Activate the virtual environment. (`source venv/bin/activate`)
-3. Run the app. (`python3 swift.py`)
+2. (Optionally) Create and activate the python virtual environment. 
+3. Install the requirements. (`pip install -r requirements.txt`)
+4. Run the app. (`python3 swifty.py`)

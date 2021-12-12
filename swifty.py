@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from syntax_highlighters.TerminalHighlighters import TerminalTextHighlighter
-from syntax_highlighters.ScalaLangHighlighter import ScalaHighlighter
+from syntax_highlighters.SwiftLangHighlighter import SwiftHighlighter
 
 
 class RefStr:
@@ -68,7 +68,7 @@ class TextEditor:
         self.widget = QPlainTextEdit()
 
         # Link a text highlighter to the code text box.
-        self.highlighter = ScalaHighlighter(self.widget.document())
+        self.highlighter = SwiftHighlighter(self.widget.document())
 
         self.widget.setWindowTitle("Text editor")
 

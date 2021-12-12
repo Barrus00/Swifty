@@ -36,7 +36,7 @@ STYLES = {
 }
 
 
-class ScalaHighlighter(QSyntaxHighlighter):
+class SwiftHighlighter(QSyntaxHighlighter):
     # Here we define the syntax elements to highlight, feel free to add more, but please be careful
     # as they are used in the regexes, so make sure that you escape every special character.
 
