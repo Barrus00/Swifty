@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from syntax_highlighters.TerminalHighlighters import TerminalTextHighlighter
+from syntax_highlighters.ScalaLangHighlighter import ScalaHighlighter
 
 
 class RefStr:
@@ -65,6 +66,10 @@ class TextEditor:
 
     def __init__(self):
         self.widget = QPlainTextEdit()
+
+        # Link a text highlighter to the code text box.
+        self.highlighter = ScalaHighlighter(self.widget.document())
+
         self.widget.setWindowTitle("Text editor")
 
 
@@ -138,13 +143,17 @@ class TerminalManager:
         self.terminal_window.setWindowTitle("Terminal output")
         self.terminal_window.setReadOnly(True)
 
+        # Link a text highlighter to the terminal output box.
         self.highlighter = TerminalTextHighlighter(self.terminal_window.document())
 
+        # Create a label which will store the previous process exit code.
         self.exit_code_widget = QLabel("Exit code: ")
 
+        # Create a button which will execute the code.
         self.run_script_tool = self.RunScriptTool(self.terminal_window, self.highlighter, self.exit_code_widget,
                                                   file_path)
 
+        # Set the layout of the terminal widget.
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.run_script_tool.widget)
         self.layout.addWidget(self.terminal_window)
@@ -164,10 +173,13 @@ class TerminalManager:
 
             # Prepare an extra core responsible for the terminal output reading.
             self.process = QtCore.QProcess()
-            self.process.stateChanged.connect(self.handle_state_change)
+            # Link a function to process the data the process receives from the standard output stream.
             self.process.readyReadStandardOutput.connect(self.read_output)
+            # Link a function to process the data the process receives from the standard error stream.
             self.process.readyReadStandardError.connect(self.read_error)
+            # Link a function to call, when the process starts and the script is invoked.
             self.process.started.connect(self.started)
+            # Link a function to call, when the process finishes.
             self.process.finished.connect(self.finished)
 
             # Save the exit code widget.
@@ -208,16 +220,6 @@ class TerminalManager:
         def read_error(self):
             self.insert_text_with_format(self.process.readAllStandardError().data().decode('utf-8'),
                                          self.highlighter.ERROR_STATE)
-
-        def handle_state_change(self):
-            states = {
-                QtCore.QProcess.NotRunning: 'NotRunning',
-                QtCore.QProcess.Starting: 'Starting',
-                QtCore.QProcess.Running: 'Running'
-            }
-
-            self.widget.message = states[self.process.state()]
-            print(states[self.process.state()])
 
         def started(self):
             self.insert_text_with_format("Running... \n\n", self.highlighter.BEGIN_OR_END_STATE)
