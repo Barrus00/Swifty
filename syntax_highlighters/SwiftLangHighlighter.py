@@ -27,7 +27,7 @@ def _format(color, style=''):
 # Syntax elements highlight colors.
 STYLES = {
     'keyword': _format('orange'),
-    'special_operator': _format('darkOrange'),
+    'type_keywords': _format('maroon'),
     'operator': _format('red'),
     'brace': _format('darkMagenta'),
     'string': _format('darkGreen'),
@@ -41,21 +41,20 @@ class SwiftHighlighter(QSyntaxHighlighter):
     # as they are used in the regexes, so make sure that you escape every special character.
 
     keywords = [
-        'abstract', 'finally', 'object', 'trait',
-        'case', 'for', 'override', 'true',
-        'catch', 'forSome', 'package', 'try',
-        'class', 'if', 'private', 'type',
-        'def', 'implicit', 'protected', 'val',
-        'do', 'import', 'return', 'var',
-        'else', 'lazy', 'sealed', 'while',
-        'extends', 'match', 'super', 'with',
-        'false', 'new', 'this', 'yield',
-        'final', 'null', 'throw', 'func'
+        'class', 'deinit', 'enum', 'extension', 'func', 'import', 'init', 'internal', 'let', 'operator', 'private',
+        'protocol', 'public', 'static', 'struct', 'subscript', 'typealias',
+        # Statements keywords
+        'var', 'break', 'case', 'continue', 'default', 'do', 'else', 'fallthrough', 'if', 'in', 'for', 'return',
+        'switch', 'where', 'while',
+        # Specific keywords
+        'associativity', 'convenience', 'dynamic', 'didSet', 'final', 'get', 'infix', 'inout', 'lazy', 'left',
+        'mutating', 'none', 'nonmutating', 'optional', 'override', 'postfix', 'precedence', 'prefix', 'Protocol',
+        'required', 'right', 'set', 'Type', 'unowned', 'weak', 'willSet',
     ]
 
-    special_operators = [
-        '⇒', '=>', '=', '<%', '<:', '←',
-        '<-', '#', '@', ':', '_'
+    type_keywords = [
+        'as', 'dynamicType', 'false', 'is', 'nil', 'self', 'Self', 'true', 'super', '_COLUMN_', '_FILE_',
+        '_FUNCTION_', '_LINE_'
     ]
 
     operators = [
@@ -81,7 +80,7 @@ class SwiftHighlighter(QSyntaxHighlighter):
         self.rules = []
 
         self.rules += [(r'\b%s\b' % x, 0, STYLES['keyword']) for x in self.keywords]
-        self.rules += [(r'%s' % x, 0, STYLES['special_operator']) for x in self.special_operators]
+        self.rules += [(r'\b%s\b' % x, 0, STYLES['type_keywords']) for x in self.type_keywords]
         self.rules += [(r'%s' % x, 0, STYLES['operator']) for x in self.operators]
         self.rules += [(r'%s' % x, 0, STYLES['brace']) for x in self.braces]
 
